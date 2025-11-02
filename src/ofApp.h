@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxXmlSettings.h"
-
+#include "plotter.h"
 
 class ofApp : public ofBaseApp{
 
@@ -29,11 +29,27 @@ public:
     ofImage* images3 = nullptr;
     int numImages1 = 0, numImages2 = 0, numImages3 = 0;
 
+    ofTrueTypeFont tipoMv;
+    int tamTipoMv =18;
+    float posTxtMvX =500, posTxtMvY =500, gapTxtMv=50;
+    Plotter plotter1;
+    Plotter plotter2;
+    Plotter plotter3;
+
+    float h, w;
     float scale= 1.0;
     float posX = 118 ;
     float posY = 105 ;
     float gap = 104;//distancia entre imgs
-    float h, w;
+    float posXPlot = 118 ;
+    float posYPlot = 105 ;
+    float gapPlot = 104;//distancia entre imgs
+
+    float suavizado =0;
+    float sizeXPlot = 700.0;
+    float sizeYPlot =  900.0;
+    bool direccionPlot = true ;
+    int historiaPlot = 2000 ;
 
     ofTrueTypeFont tipo;
     int tamTipo =14;
@@ -58,12 +74,12 @@ public:
     ofTrueTypeFont myfont;
 
     bool showDebug = false;
-
     void freeImages(ofImage*& images, int numImages);
 
     void loadImagesFromFolder(const string& folderPath, ofImage*& images, int& numImages){
         ofDirectory dir(folderPath);
         dir.allowExt("png");
+        dir.allowExt("jpeg");
         dir.allowExt("jpg");
         dir.listDir();
         dir.sort();
@@ -72,6 +88,7 @@ public:
         images = new ofImage[numImages]; // Asignar memoria para el array
 
         for (int i = 0; i < numImages; i++) {
+           
             images[i].load(dir.getPath(i));
             ofLog() << dir.getPath(i) << endl;
         }
@@ -97,14 +114,30 @@ public:
         xml.pushTag("settings");
 
         // Agregar los valores como etiquetas
+        xml.addValue("tamTipoMv", tamTipoMv);
+        xml.addValue("posTxtMvX", posTxtMvX);
+        xml.addValue("posTxtMvY", posTxtMvY);
+        xml.addValue("gapTxtMv", gapTxtMv);
+
         xml.addValue("tamTipo", tamTipo);
         xml.addValue("posTxtX", posTxtX);
         xml.addValue("posTxtY", posTxtY);
         xml.addValue("gapTxt", gapTxt);
+
         xml.addValue("scale", scale);
         xml.addValue("posX", posX);
         xml.addValue("posY", posY);
         xml.addValue("gap", gap);
+
+        xml.addValue("suavizado", suavizado);
+        xml.addValue("posXPlot", posXPlot);
+        xml.addValue("posYPlot", posYPlot);
+        xml.addValue("gapPlot", gapPlot);
+        xml.addValue("sizeXPlot", sizeXPlot);
+        xml.addValue("sizeYPlot", sizeYPlot);
+        xml.addValue("direccionPlot", direccionPlot);
+        xml.addValue("historiaPlot", historiaPlot);
+
         xml.addValue("height", h);
         xml.addValue("width", w);
 
@@ -154,12 +187,28 @@ public:
                 posTxtX= xml.getValue("posTxtX", 32);
                 posTxtY= xml.getValue("posTxtY", 32);
 
+                tamTipoMv= xml.getValue("tamTipoMv", 18);
+                gapTxtMv= xml.getValue("gapTxtMv", 450);
+                posTxtMvX= xml.getValue("posTxtMvX", 320);
+                posTxtMvY= xml.getValue("posTxtMvY", 320);
+
+                // Leer los valores y asignarlos a las variables globales
                 scale = xml.getValue("scale", 1.0); // Valor por defecto 1.0
                 posX = xml.getValue("posX", 118.0); // Valor por defecto 118.0
                 posY = xml.getValue("posY", 105.0); // Valor por defecto 105.0
                 gap = xml.getValue("gap", 104.0);   // Valor por defecto 104.0
                 h = xml.getValue("height", 0.0);    // Valor por defecto 0.0
                 w = xml.getValue("width", 0.0);     // Valor por defecto 0.0
+
+
+                suavizado = xml.getValue("suavizado", 0.0); // Valor por defecto 118.0
+                posXPlot = xml.getValue("posXPlot", 118.0); // Valor por defecto 118.0
+                posYPlot = xml.getValue("posYPlot", 105.0); // Valor por defecto 105.0
+                gapPlot = xml.getValue("gapPlot", 104.0);   // Valor por defecto 104.0
+                sizeXPlot = xml.getValue("sizeXPlot", 700.0); // Valor por defecto 118.0
+                sizeYPlot = xml.getValue("sizeYPlot", 900.0); // Valor por defecto 105.0
+                direccionPlot = xml.getValue("direccionPlot", true);   // Valor por defecto 104.0
+                historiaPlot = xml.getValue("historiaPlot", 2000);   // Valor por defecto 104.0
 
 
                 // Lectura para vel 1
@@ -213,4 +262,5 @@ public:
         frameDuration2 = ((sin(t2 )*0.5+0.5)*peso2 + (1.0-peso2)*ofNoise(t2))*amp2+bias2;
         frameDuration3 = ((sin(t3 )*0.5+0.5)*peso3 + (1.0-peso3)*ofNoise(t3))*amp3+bias3;
     }
+
 };
