@@ -9,22 +9,13 @@ void ofApp::setup(){
     ofSetWindowTitle("Video Frames Player");
     // Cargar imágenes desde las carpetas
     loadImagesFromFolder("img1", images1, numImages1);
-    loadImagesFromFolder("img2", images2, numImages2);
-    loadImagesFromFolder("img3", images3, numImages3);
 
     // Inicializar variables
     currentFrameIndex1 = 0;
-    currentFrameIndex2 = 0;
-    currentFrameIndex3 = 0;
     frameRate = 30; // Framerate deseado
-    //esto individualizarlo y los timmers lo mismo
     frameDuration1 = 1000 / frameRate; // Duración de cada frame en ms
     lastFrameTime1 = ofGetElapsedTimeMillis();
-    frameDuration2 = 1000 / frameRate; // Duración de cada frame en ms
-    lastFrameTime2 = ofGetElapsedTimeMillis();
-    frameDuration3 = 1000 / frameRate; // Duración de cada frame en ms
-    lastFrameTime3 = ofGetElapsedTimeMillis();
-    direction1 = direction2 = direction3 = 1; // 1 para adelante, -1 para reversa
+    direction1 = 1; // 1 para adelante, -1 para reversa
 
     myfont.load("arial.ttf", 32);
 
@@ -36,16 +27,6 @@ void ofApp::setup(){
     plotter1.setColor(ofColor(0, 255, 0));
     plotter1.setDireccion(direccionPlot);
     plotter1.setLineWidth(2.5);
-
-    plotter2.setup(posXPlot+gapPlot, posYPlot, sizeXPlot, sizeYPlot, historiaPlot); // x, y, w, h, historial
-    plotter2.setColor(ofColor(0, 255, 0));
-    plotter2.setDireccion(direccionPlot);
-    plotter2.setLineWidth(2.5);
-
-    plotter3.setup(posXPlot+gapPlot*2, posYPlot, sizeXPlot, sizeYPlot, historiaPlot); // x, y, w, h, historial
-    plotter3.setColor(ofColor(0, 255, 0));
-    plotter3.setDireccion(direccionPlot);
-    plotter3.setLineWidth(2.5);
     ofLog()<<   posXPlot<<" "<<gapPlot<<" "<<posYPlot<<" "<<sizeXPlot<<" "<< sizeYPlot<<" "<< historiaPlot<<endl; // x, y, w, h, historial
 
 }
@@ -61,21 +42,9 @@ void ofApp::update(){
         plotter1.addValue(frameDuration1); // Agrega un valor
         lastFrameTime1 = currentTime;
     }
-    if (currentTime - lastFrameTime2 >= frameDuration2) {
-        updateFrame(currentFrameIndex2, numImages2, direction2);
-        plotter2.addValue(frameDuration2); // Agrega un valor
-        lastFrameTime2 = currentTime;
-    }
-    if (currentTime - lastFrameTime3 >= frameDuration3) {
-        updateFrame(currentFrameIndex3, numImages3, direction3);
-        plotter3.addValue(frameDuration3); // Agrega un valor
-        lastFrameTime3 = currentTime;
-    }
 
     //actuarlizar el ploter en el timer de cada buffer
     plotter1.setPosition(posXPlot, posYPlot);
-    plotter2.setPosition(posXPlot+gapPlot, posYPlot);
-    plotter3.setPosition(posXPlot+gapPlot*2, posYPlot);
 
     //ofGetElapsedTimeMillis()
 
@@ -96,12 +65,6 @@ void ofApp::draw(){
     if (images1 != nullptr) {
         images1[currentFrameIndex1].draw(posX, posY, w, h);
     }
-    if (images2 != nullptr) {
-        images2[currentFrameIndex2].draw(posX+w+gap, posY,  w, h);
-    }
-    if (images3 != nullptr) {
-        images3[currentFrameIndex3].draw(posX+w*2.+gap*2., posY, w, h);
-    }
 
 
     if(showDebug){
@@ -111,14 +74,6 @@ void ofApp::draw(){
         if(videoSelect==1){
             vel=vel1, bias=bias1, amp=amp1, peso=peso1, velD=velD1, umbral=umbral1;
             velAcc=velAcc1;
-
-        }else if(videoSelect==2){
-            vel=vel2, bias=bias2, amp=amp2, peso=peso2, velD=velD2, umbral=umbral2;
-            velAcc=velAcc2;
-
-        }else if(videoSelect==3){
-            vel=vel3; bias=bias3, amp=amp3, peso=peso3, velD=velD3, umbral=umbral3;
-            velAcc=velAcc3;
 
         }
 
@@ -132,8 +87,6 @@ void ofApp::draw(){
 
 
         myfont.drawString(to_string(currentFrameIndex1), posX, posY-15.);
-        myfont.drawString(to_string(currentFrameIndex2),posX+w+gap, posY-15);
-        myfont.drawString(to_string(currentFrameIndex3), posX+w*2.+gap*2. , posY-15);
 
 
         ofPushStyle();
@@ -141,10 +94,6 @@ void ofApp::draw(){
         ofSetColor(0,255.,0);
         if(videoSelect==1){
             ofDrawRectangle(posX, posY, w, h);
-        }else  if(videoSelect==2){
-            ofDrawRectangle(posX+w+gap, posY, w, h);
-        }else  if(videoSelect==3){
-            ofDrawRectangle(posX+w*2.+gap*2., posY, w, h);
         }
         ofPopStyle();
     }else{
@@ -152,8 +101,6 @@ void ofApp::draw(){
         mascara.draw(0,0,ofGetWidth(),ofGetHeight());
 
         plotter1.draw();
-        plotter2.draw();
-        plotter3.draw();
 
         ofPushMatrix();
 
@@ -164,21 +111,11 @@ void ofApp::draw(){
         ofRotateDeg(270);
         // Dibujar el texto en vertical
         float txt1 = float(currentFrameIndex1)/float(numImages1-1);
-        float txt2 = float(currentFrameIndex2)/float(numImages2-1);
-        float txt3 = float(currentFrameIndex3)/float(numImages3-1);
         // myfont.drawString(ofToString(txt1, 2), posTxtX, posTxtY);
         tipo.drawString(ofToString(txt1, 2), posTxtX, posTxtY);
-        tipo.drawString(ofToString(txt2, 2), posTxtX, posTxtY+gapTxt);
-        tipo.drawString(ofToString(txt3, 2), posTxtX, posTxtY+gapTxt*2);
 
         float txtMv1 =ofNoise(txt1*100.)*0.45f;
         tipo.drawString(ofToString(txtMv1, 4), posTxtMvX, posTxtMvY);
-
-        float txtMv2 =ofNoise(txt2*100.)*0.45f;
-        tipo.drawString(ofToString(txtMv2, 4), posTxtMvX, posTxtMvY+gapTxtMv);
-
-        float txtMv3 =ofNoise(txt3*100.)*0.45f;
-        tipo.drawString(ofToString(txtMv3, 4), posTxtMvX, posTxtMvY+gapTxtMv*2);
 
 
 
@@ -215,8 +152,6 @@ void ofApp::keyPressed(int key){
     // Video selection (always available)
     if(key == '0') videoSelect = 0;
     if(key == '1') videoSelect = 1;
-    if(key == '2') videoSelect = 2;
-    if(key == '3') videoSelect = 3;
   
     // ============================================================
     // DEBUG MODE: Control de imágenes/videos
@@ -247,12 +182,6 @@ void ofApp::keyPressed(int key){
         if(videoSelect == 1) {
             vel = vel1; bias = bias1; amp = amp1; peso = peso1;
             velD = velD1; umbral = umbral1; velAcc = velAcc1;
-        } else if(videoSelect == 2) {
-            vel = vel2; bias = bias2; amp = amp2; peso = peso2;
-            velD = velD2; umbral = umbral2; velAcc = velAcc2;
-        } else if(videoSelect == 3) {
-            vel = vel3; bias = bias3; amp = amp3; peso = peso3;
-            velD = velD3; umbral = umbral3; velAcc = velAcc3;
         }
 
         // Modificar parámetros
@@ -285,12 +214,6 @@ void ofApp::keyPressed(int key){
         if(videoSelect == 1) {
             vel1 = vel; bias1 = bias; amp1 = amp; peso1 = peso;
             velD1 = velD; umbral1 = umbral; velAcc1 = velAcc;
-        } else if(videoSelect == 2) {
-            vel2 = vel; bias2 = bias; amp2 = amp; peso2 = peso;
-            velD2 = velD; umbral2 = umbral; velAcc2 = velAcc;
-        } else if(videoSelect == 3) {
-            vel3 = vel; bias3 = bias; amp3 = amp; peso3 = peso;
-            velD3 = velD; umbral3 = umbral; velAcc3 = velAcc;
         }
 
         // Log de valores
@@ -354,8 +277,6 @@ void ofApp::keyPressed(int key){
         suavizado = max(suavizado, 0.0f);
         suavizado = min(suavizado, 1.0f);
         plotter1.setSuavizado(suavizado);
-        plotter2.setSuavizado(suavizado);
-        plotter3.setSuavizado(suavizado);
         }
         cambiosEnParametros=true;
     }
@@ -372,8 +293,6 @@ void ofApp::freeImages(ofImage*& images, int numImages) {
 void ofApp::exit() {
     // Liberar memoria al salir
     freeImages(images1, numImages1);
-    freeImages(images2, numImages2);
-    freeImages(images3, numImages3);
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
