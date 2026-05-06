@@ -46,7 +46,15 @@ public:
     float sizeXPlot = 700.0;
     float sizeYPlot =  900.0;
     bool direccionPlot = true ;
-    bool rotarPlot = false ;
+    // --- Flags de rotación 90° por elemento (se persisten en XML) ---
+    // rotarPlot   : rota el plotter alrededor de su centro
+    // rotarVideo  : rota el frame de imagen alrededor de su centro
+    // rotarMascara: rota la imagen de máscara alrededor del centro de pantalla
+    // rotarTexto  : aplica la rotación 270° al bloque de texto (comportamiento original)
+    bool rotarPlot    = false ;
+    bool rotarVideo   = false ;
+    bool rotarMascara = false ;
+    bool rotarTexto   = true  ;
     int historiaPlot = 2000 ;
 
     ofTrueTypeFont tipo;
@@ -134,7 +142,10 @@ public:
         xml.addValue("sizeXPlot", sizeXPlot);
         xml.addValue("sizeYPlot", sizeYPlot);
         xml.addValue("direccionPlot", direccionPlot);
-        xml.addValue("rotarPlot", rotarPlot);
+        xml.addValue("rotarPlot",     rotarPlot);
+        xml.addValue("rotarVideo",    rotarVideo);
+        xml.addValue("rotarMascara",  rotarMascara);
+        xml.addValue("rotarTexto",    rotarTexto);
         xml.addValue("historiaPlot", historiaPlot);
 
         xml.addValue("height", h);
@@ -192,7 +203,10 @@ public:
                 sizeXPlot = xml.getValue("sizeXPlot", 700.0);
                 sizeYPlot = xml.getValue("sizeYPlot", 900.0);
                 direccionPlot = xml.getValue("direccionPlot", true);
-                rotarPlot = xml.getValue("rotarPlot", false);
+                rotarPlot     = xml.getValue("rotarPlot",    false);
+                rotarVideo    = xml.getValue("rotarVideo",   false);
+                rotarMascara  = xml.getValue("rotarMascara", false);
+                rotarTexto    = xml.getValue("rotarTexto",   true);
                 historiaPlot = xml.getValue("historiaPlot", 2000);
 
 

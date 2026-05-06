@@ -55,13 +55,35 @@ void ofApp::update(){
 void ofApp::draw(){
     ofBackground(0);
     if(showDebug){
-        mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+        // máscara en modo debug (respeta rotarMascara)
+        if(rotarMascara){
+            ofPushMatrix();
+            ofTranslate(ofGetWidth()*0.5f, ofGetHeight()*0.5f);
+            ofRotateDeg(90);
+            ofTranslate(-ofGetWidth()*0.5f, -ofGetHeight()*0.5f);
+            mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+            ofPopMatrix();
+        } else {
+            mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+        }
     }
     h = images1[currentFrameIndex1].getHeight() * scaleY;
     w = images1[currentFrameIndex1].getWidth()  * scaleX;
     // Dibujar las imágenes en la pantalla
     if (images1 != nullptr) {
-        images1[currentFrameIndex1].draw(posX, posY, w, h);
+        if(rotarVideo){
+            // Rota el frame 90° alrededor del centro de la imagen
+            ofPushMatrix();
+            float cx = posX + w * 0.5f;
+            float cy = posY + h * 0.5f;
+            ofTranslate(cx, cy);
+            ofRotateDeg(90);
+            ofTranslate(-cx, -cy);
+            images1[currentFrameIndex1].draw(posX, posY, w, h);
+            ofPopMatrix();
+        } else {
+            images1[currentFrameIndex1].draw(posX, posY, w, h);
+        }
     }
 
 
@@ -96,7 +118,17 @@ void ofApp::draw(){
         ofPopStyle();
     }else{
 
-        mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+        // máscara en modo normal (respeta rotarMascara)
+        if(rotarMascara){
+            ofPushMatrix();
+            ofTranslate(ofGetWidth()*0.5f, ofGetHeight()*0.5f);
+            ofRotateDeg(90);
+            ofTranslate(-ofGetWidth()*0.5f, -ofGetHeight()*0.5f);
+            mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+            ofPopMatrix();
+        } else {
+            mascara.draw(0,0,ofGetWidth(),ofGetHeight());
+        }
 
         ofPushMatrix();
         if(rotarPlot){
@@ -110,12 +142,11 @@ void ofApp::draw(){
         ofPopMatrix();
 
         ofPushMatrix();
-
-
-        // Rotar 90 grados para dibujar el texto en vertical
-        //ofRotateDeg(270);
-        ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-        ofRotateDeg(270);
+        // rotarTexto: aplica rotación 270° al bloque de texto (tecla 4 para toggle)
+        if(rotarTexto){
+            ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
+            ofRotateDeg(270);
+        }
         // Dibujar el texto en vertical
         float txt1 = float(currentFrameIndex1)/float(numImages1-1);
         // myfont.drawString(ofToString(txt1, 2), posTxtX, posTxtY);
@@ -159,6 +190,18 @@ void ofApp::keyPressed(int key){
     // Video selection (always available)
     if(key == '0') videoSelect = 0;
     if(key == '1') videoSelect = 1;
+
+    // ============================================================
+    // TOGGLE ROTACIONES — disponibles en cualquier modo
+    // 2 → rotarVideo   : rota el frame de imagen 90°
+    // 3 → rotarMascara : rota la máscara 90°
+    // 4 → rotarTexto   : activa/desactiva la rotación 270° del texto
+    // 5 → rotarPlot    : rota el plotter 90°
+    // ============================================================
+    if(key == '2') { rotarVideo   = !rotarVideo;   cambiosEnParametros = true; }
+    if(key == '3') { rotarMascara = !rotarMascara; cambiosEnParametros = true; }
+    if(key == '4') { rotarTexto   = !rotarTexto;   cambiosEnParametros = true; }
+    if(key == '5') { rotarPlot    = !rotarPlot;    cambiosEnParametros = true; }
   
     // ============================================================
     // DEBUG MODE: Control de imágenes/videos
