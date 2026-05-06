@@ -57,10 +57,8 @@ void ofApp::draw(){
     if(showDebug){
         mascara.draw(0,0,ofGetWidth(),ofGetHeight());
     }
-    h=   images1[currentFrameIndex1].getHeight();
-    h*= scale;
-    w =   images1[currentFrameIndex1].getWidth();
-    w*= scale;
+    h = images1[currentFrameIndex1].getHeight() * scaleY;
+    w = images1[currentFrameIndex1].getWidth()  * scaleX;
     // Dibujar las imágenes en la pantalla
     if (images1 != nullptr) {
         images1[currentFrameIndex1].draw(posX, posY, w, h);
@@ -100,7 +98,16 @@ void ofApp::draw(){
 
         mascara.draw(0,0,ofGetWidth(),ofGetHeight());
 
+        ofPushMatrix();
+        if(rotarPlot){
+            float cx = posXPlot + sizeXPlot * 0.5f;
+            float cy = posYPlot + sizeYPlot * 0.5f;
+            ofTranslate(cx, cy);
+            ofRotateDeg(90);
+            ofTranslate(-cx, -cy);
+        }
         plotter1.draw();
+        ofPopMatrix();
 
         ofPushMatrix();
 
@@ -163,16 +170,11 @@ void ofApp::keyPressed(int key){
         if(key == 'a' || key == 'A') posX--;        // Izquierda
         if(key == 'd' || key == 'D') posX++;        // Derecha
 
-        // --- Escala (Q/E) ---
-        if(key == 'q' || key == 'Q') {
-            scale -= 0.01;
-            if(scale < 0.01) scale = 0.01;
-        }
-        if(key == 'e' || key == 'E') scale += 0.01;
-
-        // --- Gap entre imágenes (R/F) ---
-        if(key == 'r' || key == 'R') gap++;
-        if(key == 'f' || key == 'F') gap--;
+        // --- Escala X/Y (Q/E ancho, R/F alto) ---
+        if(key == 'q' || key == 'Q') { scaleX -= 0.01; if(scaleX < 0.01) scaleX = 0.01; }
+        if(key == 'e' || key == 'E') { scaleX += 0.01; }
+        if(key == 'r' || key == 'R') { scaleY += 0.01; }
+        if(key == 'f' || key == 'F') { scaleY -= 0.01; if(scaleY < 0.01) scaleY = 0.01; }
 
         // --- Parámetros de video seleccionado ---
         int bias = 0, amp = 0;
@@ -219,7 +221,7 @@ void ofApp::keyPressed(int key){
         // Log de valores
         ofLog() << "=== DEBUG MODE ===" << endl;
         ofLog() << "posX: " << posX << " | posY: " << posY << endl;
-        ofLog() << "gap: " << gap << " | scale: " << scale << endl;
+        ofLog() << "gap: " << gap << " | scaleX: " << scaleX << " | scaleY: " << scaleY << endl;
         ofLog() << "w: " << w << " | h: " << h << endl;
         ofLog() << "videoSelect: " << videoSelect << endl;
         ofLog() << "bias: " << bias << " | amp: " << amp << endl;

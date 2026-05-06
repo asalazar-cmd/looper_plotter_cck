@@ -33,7 +33,8 @@ public:
     Plotter plotter1;
 
     float h, w;
-    float scale= 1.0;
+    float scaleX = 1.0;
+    float scaleY = 1.0;
     float posX = 118 ;
     float posY = 105 ;
     float gap = 104;//distancia entre imgs
@@ -45,6 +46,7 @@ public:
     float sizeXPlot = 700.0;
     float sizeYPlot =  900.0;
     bool direccionPlot = true ;
+    bool rotarPlot = false ;
     int historiaPlot = 2000 ;
 
     ofTrueTypeFont tipo;
@@ -119,7 +121,8 @@ public:
         xml.addValue("posTxtY", posTxtY);
         xml.addValue("gapTxt", gapTxt);
 
-        xml.addValue("scale", scale);
+        xml.addValue("scaleX", scaleX);
+        xml.addValue("scaleY", scaleY);
         xml.addValue("posX", posX);
         xml.addValue("posY", posY);
         xml.addValue("gap", gap);
@@ -131,6 +134,7 @@ public:
         xml.addValue("sizeXPlot", sizeXPlot);
         xml.addValue("sizeYPlot", sizeYPlot);
         xml.addValue("direccionPlot", direccionPlot);
+        xml.addValue("rotarPlot", rotarPlot);
         xml.addValue("historiaPlot", historiaPlot);
 
         xml.addValue("height", h);
@@ -172,22 +176,24 @@ public:
                 posTxtMvY= xml.getValue("posTxtMvY", 320);
 
                 // Leer los valores y asignarlos a las variables globales
-                scale = xml.getValue("scale", 1.0); // Valor por defecto 1.0
-                posX = xml.getValue("posX", 118.0); // Valor por defecto 118.0
-                posY = xml.getValue("posY", 105.0); // Valor por defecto 105.0
-                gap = xml.getValue("gap", 104.0);   // Valor por defecto 104.0
-                h = xml.getValue("height", 0.0);    // Valor por defecto 0.0
-                w = xml.getValue("width", 0.0);     // Valor por defecto 0.0
+                scaleX = xml.getValue("scaleX", 1.0);
+                scaleY = xml.getValue("scaleY", 1.0);
+                posX = xml.getValue("posX", 118.0);
+                posY = xml.getValue("posY", 105.0);
+                gap = xml.getValue("gap", 104.0);
+                h = xml.getValue("height", 0.0);
+                w = xml.getValue("width", 0.0);
 
 
-                suavizado = xml.getValue("suavizado", 0.0); // Valor por defecto 118.0
-                posXPlot = xml.getValue("posXPlot", 118.0); // Valor por defecto 118.0
-                posYPlot = xml.getValue("posYPlot", 105.0); // Valor por defecto 105.0
-                gapPlot = xml.getValue("gapPlot", 104.0);   // Valor por defecto 104.0
-                sizeXPlot = xml.getValue("sizeXPlot", 700.0); // Valor por defecto 118.0
-                sizeYPlot = xml.getValue("sizeYPlot", 900.0); // Valor por defecto 105.0
-                direccionPlot = xml.getValue("direccionPlot", true);   // Valor por defecto 104.0
-                historiaPlot = xml.getValue("historiaPlot", 2000);   // Valor por defecto 104.0
+                suavizado = xml.getValue("suavizado", 0.0);
+                posXPlot = xml.getValue("posXPlot", 118.0);
+                posYPlot = xml.getValue("posYPlot", 105.0);
+                gapPlot = xml.getValue("gapPlot", 104.0);
+                sizeXPlot = xml.getValue("sizeXPlot", 700.0);
+                sizeYPlot = xml.getValue("sizeYPlot", 900.0);
+                direccionPlot = xml.getValue("direccionPlot", true);
+                rotarPlot = xml.getValue("rotarPlot", false);
+                historiaPlot = xml.getValue("historiaPlot", 2000);
 
 
                 // Lectura para vel 1
