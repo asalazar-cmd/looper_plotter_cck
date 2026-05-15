@@ -87,12 +87,15 @@ Looper de un solo canal que carga imágenes desde `img1/` y las reproduce con fr
 | `Q` / `E` | Reduce / aumenta el gap del texto Mv |
 
 ### Posición y escala del plotter
-| Tecla | Acción |
-|-------|--------|
-| `I` / `K` | Mueve el plotter en X |
-| `J` / `L` | Mueve el plotter en Y |
-| `N` / `M` | Aumenta / reduce el gap del plotter |
-| `U` / `O` | Aumenta / reduce el **suavizado** del plotter |
+| Tecla | Acción | Paso |
+|-------|--------|------|
+| `I` / `K` | Mueve el plotter en X (izquierda / derecha) | 1 px |
+| `J` / `L` | Mueve el plotter en Y (abajo / arriba) | 1 px |
+| `N` / `M` | Aumenta / reduce el gap del plotter | 1 px |
+| `R` / `F` | Aumenta / reduce el **ancho** del plotter (`sizeXPlot`, mín 50) | 5 px |
+| `T` / `G` | Aumenta / reduce el **alto** del plotter (`sizeYPlot`, mín 50) | 5 px |
+| `Y` / `H` | Aumenta / reduce el **historial** del plotter (`historiaPlot`, mín 4) | 5 muestras |
+| `U` / `O` | Aumenta / reduce el **suavizado EMA** del plotter (0 = crudo, 1 = plano) | 0.001 |
 
 ---
 

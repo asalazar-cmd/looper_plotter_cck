@@ -42,7 +42,8 @@ public:
     float posYPlot = 105 ;
     float gapPlot = 104;//distancia entre imgs
 
-    float suavizado =0;
+    float suavizado = 0;
+    float frameDurationSuave = 33.0;
     float sizeXPlot = 700.0;
     float sizeYPlot =  900.0;
     bool direccionPlot = true ;
@@ -50,11 +51,11 @@ public:
     // rotarPlot   : rota el plotter alrededor de su centro
     // rotarVideo  : rota el frame de imagen alrededor de su centro
     // rotarMascara: rota la imagen de máscara alrededor del centro de pantalla
-    // rotarTexto  : aplica la rotación 270° al bloque de texto (comportamiento original)
+    // rotarTexto  : cicla la rotación del texto: 0=0°, 1=90°, 2=180°, 3=270°
     bool rotarPlot    = false ;
     bool rotarVideo   = false ;
     bool rotarMascara = false ;
-    bool rotarTexto   = true  ;
+    int  rotarTexto   = 3     ;  // 3 = 270° (comportamiento original)
     int historiaPlot = 2000 ;
 
     ofTrueTypeFont tipo;
@@ -168,63 +169,89 @@ public:
         }
     }
 
+    // Carga la configuración desde un archivo XML.
+    // Si el archivo no existe o la estructura es inválida, todas las posiciones
+    // de textos y plotter se inicializan al centro de la pantalla.
     void loadSettingsFromXML(const string& filename) {
         ofxXmlSettings xml;
+
+        // Calcula el centro de pantalla disponible en el momento de setup.
+        // Se usa como valor por defecto cuando no existe el archivo XML.
+        float cx = ofGetWidth()  * 0.5f;
+        float cy = ofGetHeight() * 0.5f;
+
+        // Default centrado del plotter: su esquina TL tal que quede centrado en pantalla
+        float defPosXPlot = cx - sizeXPlot * 0.5f;
+        float defPosYPlot = cy - sizeYPlot * 0.5f;
 
         // Cargar el archivo XML
         if (xml.loadFile(filename)) {
             // Moverse al nodo raíz "settings"
             if (xml.tagExists("settings")) {
                 xml.pushTag("settings");
-                tamTipo= xml.getValue("tamTipo", 14);
-                gapTxt= xml.getValue("gapTxt", 150);
-                posTxtX= xml.getValue("posTxtX", 32);
-                posTxtY= xml.getValue("posTxtY", 32);
+                tamTipo  = xml.getValue("tamTipo", 14);
+                gapTxt   = xml.getValue("gapTxt",  150);
+                // Posición texto1: centro de pantalla si no existe en XML
+                posTxtX  = xml.getValue("posTxtX", (int)cx);
+                posTxtY  = xml.getValue("posTxtY", (int)cy);
 
-                tamTipoMv= xml.getValue("tamTipoMv", 18);
-                gapTxtMv= xml.getValue("gapTxtMv", 450);
-                posTxtMvX= xml.getValue("posTxtMvX", 320);
-                posTxtMvY= xml.getValue("posTxtMvY", 320);
+                tamTipoMv = xml.getValue("tamTipoMv", 18);
+                gapTxtMv  = xml.getValue("gapTxtMv",  50);
+                // Posición textoMv: centro de pantalla si no existe en XML
+                posTxtMvX = xml.getValue("posTxtMvX", cx);
+                posTxtMvY = xml.getValue("posTxtMvY", cy);
 
-                // Leer los valores y asignarlos a las variables globales
+                // Posición de la imagen: centro de pantalla si no existe en XML
                 scaleX = xml.getValue("scaleX", 1.0);
                 scaleY = xml.getValue("scaleY", 1.0);
-                posX = xml.getValue("posX", 118.0);
-                posY = xml.getValue("posY", 105.0);
-                gap = xml.getValue("gap", 104.0);
-                h = xml.getValue("height", 0.0);
-                w = xml.getValue("width", 0.0);
+                posX   = xml.getValue("posX", cx);
+                posY   = xml.getValue("posY", cy);
+                gap    = xml.getValue("gap",  104.0);
+                h      = xml.getValue("height", 0.0);
+                w      = xml.getValue("width",  0.0);
 
-
-                suavizado = xml.getValue("suavizado", 0.0);
-                posXPlot = xml.getValue("posXPlot", 118.0);
-                posYPlot = xml.getValue("posYPlot", 105.0);
-                gapPlot = xml.getValue("gapPlot", 104.0);
-                sizeXPlot = xml.getValue("sizeXPlot", 700.0);
-                sizeYPlot = xml.getValue("sizeYPlot", 900.0);
+                suavizado     = xml.getValue("suavizado",      0.0);
+                // Posición del plotter: centrado en pantalla si no existe en XML
+                posXPlot      = xml.getValue("posXPlot",      defPosXPlot);
+                posYPlot      = xml.getValue("posYPlot",      defPosYPlot);
+                gapPlot       = xml.getValue("gapPlot",       104.0);
+                sizeXPlot     = xml.getValue("sizeXPlot",     700.0);
+                sizeYPlot     = xml.getValue("sizeYPlot",     900.0);
                 direccionPlot = xml.getValue("direccionPlot", true);
-                rotarPlot     = xml.getValue("rotarPlot",    false);
-                rotarVideo    = xml.getValue("rotarVideo",   false);
-                rotarMascara  = xml.getValue("rotarMascara", false);
-                rotarTexto    = xml.getValue("rotarTexto",   true);
-                historiaPlot = xml.getValue("historiaPlot", 2000);
+                rotarPlot     = xml.getValue("rotarPlot",     false);
+                rotarVideo    = xml.getValue("rotarVideo",    false);
+                rotarMascara  = xml.getValue("rotarMascara",  false);
+                rotarTexto    = xml.getValue("rotarTexto",    3);
+                historiaPlot  = xml.getValue("historiaPlot",  2000);
 
-
-                // Lectura para vel 1
-                vel1 = xml.getValue("vel1",0.001);
-                bias1 = xml.getValue("bias1",42);
-                amp1 = xml.getValue("amp1",30);
-                peso1 = xml.getValue("peso1",0.5);
-                velD1 = xml.getValue("velD1",0.001);
-                umbral1 = xml.getValue("umbral1",0.5);
+                // Parámetros de movimiento del video 1
+                vel1    = xml.getValue("vel1",    0.001);
+                velAcc1 = xml.getValue("velAcc1", 0.005);
+                bias1   = xml.getValue("bias1",   42);
+                amp1    = xml.getValue("amp1",    30);
+                peso1   = xml.getValue("peso1",   0.5);
+                velD1   = xml.getValue("velD1",   0.001);
+                umbral1 = xml.getValue("umbral1", 0.5);
                 xml.popTag(); // Salir del nodo "settings"
 
                 ofLogNotice() << "Settings loaded from " << filename;
             } else {
                 ofLogError() << "Invalid XML structure in " << filename;
+                // Posiciones al centro de pantalla
+                posTxtX = (int)cx; posTxtY = (int)cy;
+                posTxtMvX = cx;    posTxtMvY = cy;
+                posX = cx;         posY = cy;
+                posXPlot = defPosXPlot;
+                posYPlot = defPosYPlot;
             }
         } else {
-            ofLogError() << "Failed to load settings from " << filename;
+            ofLogWarning() << "No XML found (" << filename << "). Using screen-center defaults.";
+            // Posiciones al centro de pantalla
+            posTxtX = (int)cx; posTxtY = (int)cy;
+            posTxtMvX = cx;    posTxtMvY = cy;
+            posX = cx;         posY = cy;
+            posXPlot = defPosXPlot;
+            posYPlot = defPosYPlot;
         }
     }
 
